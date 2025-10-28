@@ -9,6 +9,11 @@ RUN mvn -q -DskipTests package
 ## Run stage: slim JRE with built jar
 FROM openjdk:17-jdk-slim
 WORKDIR /app
+# Install required fonts
+RUN apt-get update && apt-get install -y \
+    fontconfig \
+    libfreetype6 \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/*.jar /app/app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]
