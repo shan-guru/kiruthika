@@ -1,0 +1,9 @@
+Note: This is a placeholder. Please replace this file with an actual image (textile-shop.jpg) that represents your textile shop. The image should be:
+
+1. A high-quality photograph of a textile shop or textile products
+2. Dimensions: Recommended 1200x800 pixels
+3. Format: JPG/JPEG
+4. File name: textile-shop.jpg
+5. Location: Place in the frontend/public folder
+
+The image will be displayed on the home page as a welcoming banner for Kiruthika Textiles.
