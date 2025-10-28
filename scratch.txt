@@ -1,0 +1,18 @@
+1) Build backend jar:
+cd /Users/shan/Documents/Learning-work/kiruthika/backend
+mvn clean package -DskipTests
+
+2) Start the full stack:
+cd /Users/shan/Documents/Learning-work/kiruthika
+docker compose up --build -d
+
+
+3) Open:
+Frontend: http://localhost:3000
+Backend health: http://localhost:8080/actuator/health
+API docs: http://localhost:8080/swagger-ui/index.html
+
+Stop: 
+cd /Users/shan/Documents/Learning-work/kiruthika/backend
+docker compose down
+
