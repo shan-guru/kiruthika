@@ -2,38 +2,43 @@ import React, { useEffect, useState } from 'react'
 import api from '../api'
 import Autocomplete from './Autocomplete'
 
+const INITIAL_STATE = {
+  name: '',
+  date: new Date().toISOString().slice(0, 10),
+  amount: '',
+  description: ''
+}
+
 export default function CustomerPaymentForm() {
-  const [name, setName] = useState('')
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
-  const [amount, setAmount] = useState('')
-  const [description, setDescription] = useState('')
+  const [form, setForm] = useState(INITIAL_STATE)
   const [balance, setBalance] = useState<number | null>(null)
   const [status, setStatus] = useState<string | null>(null)
 
   useEffect(() => {
     const fetch = async () => {
       setBalance(null)
-      if (!name) return
+      if (!form.name) return
       try {
-        const res = await api.get('/api/customers/balance', { params: { name } })
+        const res = await api.get('/api/customers/balance', { params: { name: form.name } })
         setBalance(Number(res.data))
       } catch {
         setBalance(null)
       }
     }
     fetch()
-  }, [name])
+  }, [form.name])
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus(null)
     try {
       await api.post('/api/customers/payment', {
-        name,
-        paymentAmount: Number(amount || 0),
-        date,
-        description
+        name: form.name,
+        paymentAmount: Number(form.amount || 0),
+        date: form.date,
+        description: form.description
       })
+      setForm(INITIAL_STATE)
       setStatus('Saved')
     } catch (err: any) {
       setStatus(err?.response?.data?.message || 'Error')
@@ -48,9 +53,9 @@ export default function CustomerPaymentForm() {
           <div className="col-6">
             <label>Name*</label>
             <Autocomplete
-              value={name}
-              onChange={setName}
-              onSelect={setName}
+              value={form.name}
+              onChange={(value) => setForm(prev => ({ ...prev, name: value }))}
+              onSelect={(value) => setForm(prev => ({ ...prev, name: value }))}
               endpoint="customers"
               required={true}
               placeholder="Enter customer name"
@@ -62,25 +67,37 @@ export default function CustomerPaymentForm() {
           </div>
           <div className="col-6">
             <label>Payment Amount*</label>
-            <input type="number" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} required />
+            <input
+              type="number"
+              step="0.01"
+              value={form.amount}
+              onChange={e => setForm(prev => ({ ...prev, amount: e.target.value }))}
+              required
+            />
           </div>
           <div className="col-6">
             <label>Date*</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} required />
+            <input
+              type="date"
+              value={form.date}
+              onChange={e => setForm(prev => ({ ...prev, date: e.target.value }))}
+              required
+            />
           </div>
           <div className="col-12">
             <label>Description</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} />
+            <textarea
+              value={form.description}
+              onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
+            />
           </div>
         </div>
         <div className="actions">
           <button className="btn btn-primary" type="submit">Save</button>
-          <button className="btn btn-ghost" type="reset" onClick={() => { setAmount(''); setDescription(''); }}>Clear</button>
+          <button className="btn btn-ghost" type="button" onClick={() => setForm(INITIAL_STATE)}>Clear</button>
         </div>
         {status && <p className={`status ${status === 'Saved' ? 'ok' : 'err'}`}>{status}</p>}
       </form>
     </div>
   )
 }
-
-
