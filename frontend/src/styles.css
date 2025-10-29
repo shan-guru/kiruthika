@@ -29,7 +29,13 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
 /* Cards & Sections */
 .section-title { font-size: 28px; margin: 18px 0; letter-spacing: .3px; }
 .card { background: var(--surface); border: 1px solid #1d2548; border-radius: var(--radius); padding: 20px; box-shadow: 0 6px 30px rgba(0,0,0,.25); }
-.form-card { composes: card; }
+.form-card { 
+  background: var(--surface);
+  border: 1px solid #1d2548;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 6px 30px rgba(0,0,0,.25);
+}
 
 /* Forms */
 .form { display: grid; gap: 14px; }
@@ -57,4 +63,58 @@ textarea { min-height: 96px; resize: vertical; }
 .status.ok { color: #7ee787; }
 .status.err { color: var(--danger); }
 
+/* Autocomplete Styles */
+.autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.autocomplete-wrapper input {
+  width: 100%;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid #26305c;
+  border-radius: 10px;
+  padding: 12px;
+  outline: none;
+}
+
+.suggestions-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--surface-2);
+  border: 1px solid #26305c;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  margin-top: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.2;
+  border-bottom: 1px solid rgba(38, 48, 92, 0.2);
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: var(--primary);
+  color: white;
+}
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import api from '../api'
+import Autocomplete from './Autocomplete'
 
 export default function CustomerCreditForm() {
   const [form, setForm] = useState({
@@ -33,7 +34,14 @@ export default function CustomerCreditForm() {
         <div className="form-grid">
           <div className="col-6">
             <label>Name*</label>
-            <input name="name" value={form.name} onChange={onChange} required />
+            <Autocomplete
+              value={form.name}
+              onChange={(value) => setForm(prev => ({ ...prev, name: value }))}
+              onSelect={(value) => setForm(prev => ({ ...prev, name: value }))}
+              endpoint="customers"
+              required={true}
+              placeholder="Enter customer name"
+            />
           </div>
           <div className="col-6">
             <label>Bill Number*</label>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../api'
+import Autocomplete from './Autocomplete'
 
 export default function SupplierSettlementForm() {
   const [name, setName] = useState('')
@@ -58,7 +59,14 @@ export default function SupplierSettlementForm() {
         <div className="form-grid">
           <div className="col-6">
             <label>Name*</label>
-            <input value={name} onChange={e => setName(e.target.value)} required />
+            <Autocomplete
+              value={name}
+              onChange={setName}
+              onSelect={setName}
+              endpoint="suppliers"
+              required={true}
+              placeholder="Enter supplier name"
+            />
           </div>
           <div className="col-6">
             <label>Bill Number*</label>

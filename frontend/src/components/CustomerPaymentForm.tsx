@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../api'
+import Autocomplete from './Autocomplete'
 
 export default function CustomerPaymentForm() {
   const [name, setName] = useState('')
@@ -46,7 +47,14 @@ export default function CustomerPaymentForm() {
         <div className="form-grid">
           <div className="col-6">
             <label>Name*</label>
-            <input value={name} onChange={e => setName(e.target.value)} required />
+            <Autocomplete
+              value={name}
+              onChange={setName}
+              onSelect={setName}
+              endpoint="customers"
+              required={true}
+              placeholder="Enter customer name"
+            />
           </div>
           <div className="col-6">
             <label>Balance</label>
