@@ -2,11 +2,18 @@ import React, { useState } from 'react'
 import api from '../api'
 import Autocomplete from './Autocomplete'
 
+const INITIAL_STATE = {
+  name: '',
+  billNumber: '',
+  phoneNumber: '',
+  gst: '',
+  date: new Date().toISOString().slice(0, 10),
+  purchaseAmount: '',
+  description: ''
+}
+
 export default function CustomerCreditForm() {
-  const [form, setForm] = useState({
-    name: '', billNumber: '', phoneNumber: '', gst: '',
-    date: new Date().toISOString().slice(0, 10), purchaseAmount: '', description: ''
-  })
+  const [form, setForm] = useState(INITIAL_STATE)
   const [status, setStatus] = useState<string | null>(null)
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -21,6 +28,7 @@ export default function CustomerCreditForm() {
         ...form,
         purchaseAmount: Number(form.purchaseAmount || 0)
       })
+      setForm(INITIAL_STATE)
       setStatus('Saved')
     } catch (err: any) {
       setStatus(err?.response?.data?.message || 'Error')
@@ -70,7 +78,7 @@ export default function CustomerCreditForm() {
         </div>
         <div className="actions">
           <button className="btn btn-primary" type="submit">Save</button>
-          <button className="btn btn-ghost" type="reset" onClick={() => setForm({ ...form, name: '', billNumber: '', phoneNumber: '', gst: '', purchaseAmount: '', description: '' })}>Clear</button>
+          <button className="btn btn-ghost" type="button" onClick={() => setForm(INITIAL_STATE)}>Clear</button>
         </div>
         {status && <p className={`status ${status === 'Saved' ? 'ok' : 'err'}`}>{status}</p>}
       </form>
