@@ -12,6 +12,12 @@ import java.util.List;
 
 @Service
 public class CustomerService {
+    
+    public List<String> searchCustomerNames(String query) {
+        return customerRepository.findByNameContainingIgnoreCase(query).stream()
+                .map(Customer::getName)
+                .collect(java.util.stream.Collectors.toList());
+    }
     private final CustomerRepository customerRepository;
     private final CustomerBillRepository customerBillRepository;
     private final CustomerPaymentRepository customerPaymentRepository;

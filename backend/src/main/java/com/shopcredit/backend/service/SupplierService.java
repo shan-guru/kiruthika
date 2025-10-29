@@ -12,6 +12,12 @@ import java.util.List;
 
 @Service
 public class SupplierService {
+    
+    public List<String> searchSupplierNames(String query) {
+        return supplierRepository.findByNameContainingIgnoreCase(query).stream()
+                .map(Supplier::getName)
+                .collect(java.util.stream.Collectors.toList());
+    }
     private final SupplierRepository supplierRepository;
     private final SupplierBillRepository supplierBillRepository;
     private final SupplierSettlementRepository supplierSettlementRepository;
