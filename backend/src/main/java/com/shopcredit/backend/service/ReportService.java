@@ -3,6 +3,7 @@ package com.shopcredit.backend.service;
 import com.shopcredit.backend.domain.*;
 import com.shopcredit.backend.dto.ReportDtos.*;
 import com.shopcredit.backend.repository.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,12 +36,12 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    public SupplierReportResponse supplierReport(String supplierName, String billNumber, LocalDate start, LocalDate end) {
+        public SupplierReportResponse supplierReport(String supplierName, String billNumber, LocalDate start, LocalDate end, PageRequest pageRequest) {
         List<SupplierReportItem> items = new ArrayList<>();
         BigDecimal totalPurchases = BigDecimal.ZERO;
         BigDecimal totalSettlements = BigDecimal.ZERO;
 
-        List<SupplierBill> bills;
+        List<SupplierBill> allBills;
         if (supplierName != null && !supplierName.isBlank()) {
             var supplierOpt = supplierRepository.findByNameIgnoreCase(supplierName);
             if (supplierOpt.isEmpty()) {
@@ -49,13 +50,29 @@ public class ReportService {
                 resp.totalPurchases = BigDecimal.ZERO;
                 resp.totalSettlements = BigDecimal.ZERO;
                 resp.outstandingBalance = BigDecimal.ZERO;
+                resp.totalPages = 0;
                 return resp;
             }
             Supplier supplier = supplierOpt.get();
-            bills = supplierBillRepository.findBySupplierAndClosedFalse(supplier);
+            allBills = supplierBillRepository.findBySupplierAndClosedFalse(supplier);
         } else {
-            bills = supplierBillRepository.findAll();
+            allBills = supplierBillRepository.findAll();
         }
+
+        // Apply date and bill number filters
+        List<SupplierBill> filteredBills = allBills.stream()
+            .filter(b -> billNumber == null || billNumber.isBlank() || billNumber.equalsIgnoreCase(b.getBillNumber()))
+            .filter(b -> start == null || !b.getDate().isBefore(start))
+            .filter(b -> end == null || !b.getDate().isAfter(end))
+            .toList();
+
+        // Calculate total pages
+        int totalPages = (int) Math.ceil((double) filteredBills.size() / pageRequest.getPageSize());
+
+        // Apply pagination
+        int start_idx = (int) pageRequest.getOffset();
+        int end_idx = Math.min((start_idx + pageRequest.getPageSize()), filteredBills.size());
+        List<SupplierBill> bills = filteredBills.subList(start_idx, end_idx);
 
         for (SupplierBill b : bills) {
             if (billNumber != null && !billNumber.isBlank() && !billNumber.equalsIgnoreCase(b.getBillNumber())) continue;
@@ -84,16 +101,17 @@ public class ReportService {
         resp.totalPurchases = totalPurchases;
         resp.totalSettlements = totalSettlements;
         resp.outstandingBalance = totalPurchases.subtract(totalSettlements);
+        resp.totalPages = totalPages;
         return resp;
     }
 
     @Transactional(readOnly = true)
-    public CustomerReportResponse customerReport(String customerName, LocalDate start, LocalDate end) {
+        public CustomerReportResponse customerReport(String customerName, LocalDate start, LocalDate end, PageRequest pageRequest) {
         List<CustomerReportItem> items = new ArrayList<>();
         BigDecimal totalSales = BigDecimal.ZERO;
         BigDecimal totalPayments = BigDecimal.ZERO;
 
-        List<CustomerBill> bills;
+        List<CustomerBill> allBills;
         if (customerName != null && !customerName.isBlank()) {
             var custOpt = customerRepository.findByNameIgnoreCase(customerName);
             if (custOpt.isEmpty()) {
@@ -102,11 +120,31 @@ public class ReportService {
                 resp.totalSales = BigDecimal.ZERO;
                 resp.totalPayments = BigDecimal.ZERO;
                 resp.outstandingReceivables = BigDecimal.ZERO;
+                resp.totalPages = 0;
                 return resp;
             }
-            bills = customerBillRepository.findByCustomer(custOpt.get());
+            allBills = customerBillRepository.findByCustomer(custOpt.get());
         } else {
-            bills = customerBillRepository.findAll();
+            allBills = customerBillRepository.findAll();
+        }
+
+        // Apply date filters
+        List<CustomerBill> filteredBills = allBills.stream()
+            .filter(b -> start == null || !b.getDate().isBefore(start))
+            .filter(b -> end == null || !b.getDate().isAfter(end))
+            .toList();
+
+        // Calculate total pages
+        int totalPages = pageRequest != null ? (int) Math.ceil((double) filteredBills.size() / pageRequest.getPageSize()) : 1;
+
+        // Apply pagination if pageRequest is provided
+        List<CustomerBill> bills;
+        if (pageRequest != null) {
+            int start_idx = (int) pageRequest.getOffset();
+            int end_idx = Math.min((start_idx + pageRequest.getPageSize()), filteredBills.size());
+            bills = filteredBills.subList(start_idx, end_idx);
+        } else {
+            bills = filteredBills;
         }
 
         for (CustomerBill b : bills) {
@@ -136,6 +174,7 @@ public class ReportService {
         resp.totalSales = totalSales;
         resp.totalPayments = totalPayments;
         resp.outstandingReceivables = totalSales.subtract(totalPayments);
+        resp.totalPages = totalPages;
         return resp;
     }
 }

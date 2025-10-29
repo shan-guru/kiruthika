@@ -19,6 +19,7 @@ public class ReportDtos {
         public BigDecimal totalPurchases;
         public BigDecimal totalSettlements;
         public BigDecimal outstandingBalance;
+        public int totalPages;
     }
 
     public static class CustomerReportItem {
@@ -35,6 +36,7 @@ public class ReportDtos {
         public BigDecimal totalSales;
         public BigDecimal totalPayments;
         public BigDecimal outstandingReceivables;
+        public int totalPages;
     }
 }
 
