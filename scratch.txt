@@ -5,7 +5,11 @@ mvn clean package -DskipTests
 2) Start the full stack:
 cd /Users/shan/Documents/Learning-work/kiruthika
 docker compose up --build -d
+Full: 
+docker compose down && docker compose up --build -d
 
+Frontend:
+docker compose up -d --build frontend
 
 3) Open:
 Frontend: http://localhost:3000
@@ -16,3 +20,5 @@ Stop:
 cd /Users/shan/Documents/Learning-work/kiruthika/backend
 docker compose down
 
+ngrok: 
+ngrok http 3000 --log=stdout
