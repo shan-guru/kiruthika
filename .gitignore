@@ -5,6 +5,16 @@ backend/.classpath
 backend/.project
 backend/.factorypath
 
+# Compiled Java class files
+*.class
+
+# Maven
+target/
+**/target/
+*.war
+*.jar
+*.ear
+
 # Frontend
 frontend/node_modules/
 frontend/dist/
