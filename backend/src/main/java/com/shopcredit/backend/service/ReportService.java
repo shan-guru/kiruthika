@@ -36,7 +36,7 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-        public SupplierReportResponse supplierReport(String supplierName, String billNumber, LocalDate start, LocalDate end, PageRequest pageRequest) {
+        public SupplierReportResponse supplierReport(String supplierName, String billNumber, String gst, LocalDate start, LocalDate end, PageRequest pageRequest) {
         List<SupplierReportItem> items = new ArrayList<>();
         BigDecimal totalPurchases = BigDecimal.ZERO;
         BigDecimal totalSettlements = BigDecimal.ZERO;
@@ -59,9 +59,10 @@ public class ReportService {
             allBills = supplierBillRepository.findAll();
         }
 
-        // Apply date and bill number filters
+        // Apply date, bill number and GST filters
         List<SupplierBill> filteredBills = allBills.stream()
             .filter(b -> billNumber == null || billNumber.isBlank() || billNumber.equalsIgnoreCase(b.getBillNumber()))
+            .filter(b -> gst == null || gst.isBlank() || (b.getGst() != null && b.getGst().toLowerCase().contains(gst.toLowerCase())))
             .filter(b -> start == null || !b.getDate().isBefore(start))
             .filter(b -> end == null || !b.getDate().isAfter(end))
             .toList();
@@ -83,6 +84,7 @@ public class ReportService {
             row.date = b.getDate();
             row.supplierName = b.getSupplier().getName();
             row.billNumber = b.getBillNumber();
+            row.gst = b.getGst();
             row.purchaseAmount = b.getPurchaseAmount();
 
             BigDecimal settlements = supplierSettlementRepository.findByBill(b).stream()

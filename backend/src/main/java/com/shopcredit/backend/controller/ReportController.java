@@ -30,11 +30,12 @@ public class ReportController {
     public ResponseEntity<SupplierReportResponse> supplierReport(
             @RequestParam(value = "name", required = false) String supplierName,
             @RequestParam(value = "billNumber", required = false) String billNumber,
+            @RequestParam(value = "gst", required = false) String gst,
             @RequestParam(value = "start", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam(value = "end", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(reportService.supplierReport(supplierName, billNumber, start, end, PageRequest.of(page, size)));
+        return ResponseEntity.ok(reportService.supplierReport(supplierName, billNumber, gst, start, end, PageRequest.of(page, size)));
     }
 
     @GetMapping("/customers")
@@ -51,10 +52,11 @@ public class ReportController {
     public ResponseEntity<byte[]> exportSupplierReport(
             @RequestParam(value = "name", required = false) String supplierName,
             @RequestParam(value = "billNumber", required = false) String billNumber,
+            @RequestParam(value = "gst", required = false) String gst,
             @RequestParam(value = "start", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam(value = "end", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) throws IOException {
         
-        SupplierReportResponse report = reportService.supplierReport(supplierName, billNumber, start, end, null);
+        SupplierReportResponse report = reportService.supplierReport(supplierName, billNumber, gst, start, end, null);
         
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Supplier Report");
@@ -64,9 +66,10 @@ public class ReportController {
             headerRow.createCell(0).setCellValue("Date");
             headerRow.createCell(1).setCellValue("Supplier");
             headerRow.createCell(2).setCellValue("Bill Number");
-            headerRow.createCell(3).setCellValue("Purchase Amount");
-            headerRow.createCell(4).setCellValue("Settlement Amount");
-            headerRow.createCell(5).setCellValue("Balance");
+            headerRow.createCell(3).setCellValue("GST");
+            headerRow.createCell(4).setCellValue("Purchase Amount");
+            headerRow.createCell(5).setCellValue("Settlement Amount");
+            headerRow.createCell(6).setCellValue("Balance");
             
             // Create data rows
             int rowNum = 1;
@@ -75,25 +78,27 @@ public class ReportController {
                 row.createCell(0).setCellValue(item.date.toString());
                 row.createCell(1).setCellValue(item.supplierName);
                 row.createCell(2).setCellValue(item.billNumber);
-                row.createCell(3).setCellValue(item.purchaseAmount.doubleValue());
-                row.createCell(4).setCellValue(item.settlementAmount.doubleValue());
-                row.createCell(5).setCellValue(item.balance.doubleValue());
+                row.createCell(3).setCellValue(item.gst == null ? "" : item.gst);
+                row.createCell(4).setCellValue(item.purchaseAmount.doubleValue());
+                row.createCell(5).setCellValue(item.settlementAmount.doubleValue());
+                row.createCell(6).setCellValue(item.balance.doubleValue());
             }
             
             // Add totals
             Row totalRow = sheet.createRow(rowNum + 1);
             totalRow.createCell(0).setCellValue("Totals");
-            totalRow.createCell(3).setCellValue(report.totalPurchases.doubleValue());
-            totalRow.createCell(4).setCellValue(report.totalSettlements.doubleValue());
-            totalRow.createCell(5).setCellValue(report.outstandingBalance.doubleValue());
+            totalRow.createCell(4).setCellValue(report.totalPurchases.doubleValue());
+            totalRow.createCell(5).setCellValue(report.totalSettlements.doubleValue());
+            totalRow.createCell(6).setCellValue(report.outstandingBalance.doubleValue());
             
             // Set column widths manually (in units of 1/256th of a character width)
             sheet.setColumnWidth(0, 15 * 256); // Date
             sheet.setColumnWidth(1, 30 * 256); // Supplier name
             sheet.setColumnWidth(2, 20 * 256); // Bill number
-            sheet.setColumnWidth(3, 20 * 256); // Purchase amount
-            sheet.setColumnWidth(4, 20 * 256); // Settlement amount
-            sheet.setColumnWidth(5, 20 * 256); // Balance
+            sheet.setColumnWidth(3, 18 * 256); // GST
+            sheet.setColumnWidth(4, 20 * 256); // Purchase amount
+            sheet.setColumnWidth(5, 20 * 256); // Settlement amount
+            sheet.setColumnWidth(6, 20 * 256); // Balance
             
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);

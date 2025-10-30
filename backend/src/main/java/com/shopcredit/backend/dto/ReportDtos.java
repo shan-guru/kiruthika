@@ -9,6 +9,7 @@ public class ReportDtos {
         public LocalDate date;
         public String supplierName;
         public String billNumber;
+        public String gst;
         public BigDecimal purchaseAmount;
         public BigDecimal settlementAmount;
         public BigDecimal balance;

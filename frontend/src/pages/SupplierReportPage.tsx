@@ -6,13 +6,14 @@ type Row = {
   date: string
   supplierName: string
   billNumber: string
+  gst?: string
   purchaseAmount: number
   settlementAmount: number
   balance: number
 }
 
 export default function SupplierReportPage() {
-  const [filters, setFilters] = useState({ name: '', billNumber: '', start: '', end: '' })
+  const [filters, setFilters] = useState({ name: '', billNumber: '', gst: '', start: '', end: '' })
   const [rows, setRows] = useState<Row[]>([])
   const [totals, setTotals] = useState({ totalPurchases: 0, totalSettlements: 0, outstandingBalance: 0 })
   const [pagination, setPagination] = useState({ page: 0, size: 10, totalPages: 1 })
@@ -21,6 +22,7 @@ export default function SupplierReportPage() {
     const params: any = {}
     if (filters.name) params.name = filters.name
     if (filters.billNumber) params.billNumber = filters.billNumber
+    if (filters.gst) params.gst = filters.gst
     if (filters.start) params.start = filters.start
     if (filters.end) params.end = filters.end
       params.page = pagination.page
@@ -40,6 +42,7 @@ export default function SupplierReportPage() {
       const params: any = {}
       if (filters.name) params.name = filters.name
       if (filters.billNumber) params.billNumber = filters.billNumber
+      if (filters.gst) params.gst = filters.gst
       if (filters.start) params.start = filters.start
       if (filters.end) params.end = filters.end
 
@@ -77,6 +80,7 @@ export default function SupplierReportPage() {
           />
         </div>
         <div className="col-4"><label>Bill Number</label><input value={filters.billNumber} onChange={e => setFilters({ ...filters, billNumber: e.target.value })} /></div>
+        <div className="col-4"><label>GST</label><input value={filters.gst} onChange={e => setFilters({ ...filters, gst: e.target.value })} /></div>
         <div className="col-4"><label>Start</label><input type="date" value={filters.start} onChange={e => setFilters({ ...filters, start: e.target.value })} /></div>
         <div className="col-4"><label>End</label><input type="date" value={filters.end} onChange={e => setFilters({ ...filters, end: e.target.value })} /></div>
       </div>
@@ -91,6 +95,7 @@ export default function SupplierReportPage() {
               <th style={{ textAlign: 'left', padding: 8 }}>Date</th>
               <th style={{ textAlign: 'left', padding: 8 }}>Supplier</th>
               <th style={{ textAlign: 'left', padding: 8 }}>Bill</th>
+              <th style={{ textAlign: 'left', padding: 8 }}>GST</th>
               <th style={{ textAlign: 'right', padding: 8 }}>Purchase</th>
               <th style={{ textAlign: 'right', padding: 8 }}>Settlement</th>
               <th style={{ textAlign: 'right', padding: 8 }}>Balance</th>
@@ -102,13 +107,14 @@ export default function SupplierReportPage() {
                 <td style={{ padding: 8 }}>{r.date}</td>
                 <td style={{ padding: 8 }}>{r.supplierName}</td>
                 <td style={{ padding: 8 }}>{r.billNumber}</td>
+                <td style={{ padding: 8 }}>{r.gst || ''}</td>
                 <td style={{ textAlign: 'right', padding: 8 }}>{r.purchaseAmount?.toLocaleString()}</td>
                 <td style={{ textAlign: 'right', padding: 8 }}>{r.settlementAmount?.toLocaleString()}</td>
                 <td style={{ textAlign: 'right', padding: 8 }}>{r.balance?.toLocaleString()}</td>
               </tr>
             ))}
             {rows.length === 0 && (
-              <tr><td colSpan={6} style={{ padding: 12, color: '#b5bddb' }}>No data</td></tr>
+              <tr><td colSpan={7} style={{ padding: 12, color: '#b5bddb' }}>No data</td></tr>
             )}
           </tbody>
         </table>
