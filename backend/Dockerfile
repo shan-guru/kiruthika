@@ -6,8 +6,8 @@ RUN mvn -q -e -DskipTests dependency:go-offline
 COPY src ./src
 RUN mvn -q -DskipTests package
 
-## Run stage: slim JRE with built jar
-FROM openjdk:17-jdk-slim
+## Run stage: JRE with built jar
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 # Install required fonts
 RUN apt-get update && apt-get install -y \
