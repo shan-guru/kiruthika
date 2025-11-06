@@ -1,0 +1,48 @@
+# Docker Compose configuration using remote/published images
+# Replace the image names below with your actual published images from:
+# - Docker Hub: username/repository:tag
+# - GitHub Container Registry: ghcr.io/username/repository:tag
+# - Private registry: registry.example.com/repository:tag
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shopdb
+      POSTGRES_USER: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    # Docker Hub format: username/repository:tag
+    # GitHub Container Registry format: ghcr.io/username/repository:tag
+    # Update with your actual image name after building and pushing
+    image: shan-guru/kiruthika-backend:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/shopdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    restart: unless-stopped
+
+  frontend:
+    # Docker Hub format: username/repository:tag
+    # GitHub Container Registry format: ghcr.io/username/repository:tag
+    # Update with your actual image name after building and pushing
+    image: shan-guru/kiruthika-frontend:latest
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  db-data:
+
